@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+</head>
+<body>
+<h2 id="warning-please-read-these-instructions-carefully-and-entirely-first">:warning: Please read these instructions carefully and entirely first</h2>
+<ul>
+<li>Clone this repository to your local machine.</li>
+<li>Use your IDE of choice to complete the assignment.</li>
+<li>When you have completed the assignment, you need to push your code to this repository and <a href="https://app.snapcode.review/submission_links/2e525601-71b4-4d52-b195-37230f082cf0">mark the assignment as completed by clicking here</a>.</li>
+<li>Once you mark it as completed, your access to this repository will be revoked. Please make sure that you have completed the assignment and pushed all code from your local machine to this repository before you click the link.</li>
+</ul>
+<p><strong>Table of Contents</strong> 1. <a href="#before-you-start">Before you start</a>, a brief explanation for the exercise and software prerequisites/setup.<br />
+2. <a href="#tips-on-what-were-looking-for">Tips for what we are looking for</a> provides clear guidance on solution qualities we value 3. <a href="#begin-the-two-part-challenge">The Challenge</a> explains the data engineering code challenge to be tackled. 4. <a href="#follow-up-questions">Follow-up Questions</a> related to the challenge which you should address<br />
+5. <a href="#your-approach-and-answers-to-follow-up-questions-">Your approach and answers to follow-up questions</a> is where you should include the answers to the follow-up question and clarify your solution approach any assumptions you have made.</p>
+<h2 id="before-you-start">Before you start</h2>
+<h3 id="why-complete-this-task">Why complete this task?</h3>
+<p>We want to make the interview process as simple and stress-free as possible. That’s why we ask you to complete the first stage of the process from the comfort of your own home.</p>
+<p>Your submission will help us to learn about your skills and approach. If we think you’re a good fit for our network, we’ll use your submission in the next interview stages too.</p>
+<h3 id="about-the-task">About the task</h3>
+<p>You’ll be creating an ingestion process to ingest files containing vote data. You’ll also create a means to query the ingested data to determine outlier weeks.</p>
+<p>There’s no time limit for this task, but we expect it to take less than 2 hours.</p>
+<h3 id="software-prerequisites">Software prerequisites</h3>
+<p>To make it really easy for candidates to do this exercise regardless of their operating system, we’ve provided a containerised way to run the exercise. To make use of this, you’ll need to have <a href="https://www.docker.com/products/docker-desktop/">Docker</a> (or a free equivalent like <a href="https://rancherdesktop.io/">Rancher</a> or <a href="https://github.com/abiosoft/colima">Colima</a>) installed on your system.</p>
+<p>To start the process, there is a <code>Dockerfile</code> in the root of the project. This defines a linux-based container that includes Python 3.11, Poetry and DuckDB.</p>
+<p>To build the container:</p>
+<pre class="shell"><code>docker build -t ee-data-engineering-challenge:0.0.1 .</code></pre>
+<p>To run the container after building it:</p>
+<p><em>Mac or Linux, or Windows with WSL:</em></p>
+<pre class="shell"><code>docker run --mount type=bind,source=&quot;$(pwd)/&quot;,target=/home/dataeng -it ee-data-engineering-challenge:0.0.1 bash</code></pre>
+<p><em>Windows (without WSL):</em></p>
+<pre class="shell"><code>docker run --mount type=bind,source=&quot;%cd%&quot;,target=/home/dataeng -it ee-data-engineering-challenge:0.0.1 bash</code></pre>
+<p>Running the container opens up a terminal in which you can run the poetry commands that we describe next.</p>
+<p>You could also proceed without the container by having Python 3.11 and <a href="https://python-poetry.org/">Poetry</a> directly installed on your system. In this case, just run the poetry commands you see described here directly in your own terminal.</p>
+<h3 id="poetry">Poetry</h3>
+<p>This exercise has been written in Python 3.11 and uses <a href="https://python-poetry.org/">Poetry</a> as a dependency manager. If you’re unfamiliar with Poetry, don’t worry – the only things you need to know are:</p>
+<ol type="1">
+<li>Poetry automatically updates the <code>pyproject.toml</code> file with descriptions of your project’s dependencies to keep track of what libraries are being used.</li>
+<li>To add a dependency for your project, use <code>poetry add thelibraryname</code></li>
+<li>To add a “dev” dependency (e.g. a test library or linter rather than something your program depends on) use <code>poetry add --dev thelibraryname</code></li>
+<li>To resolve dependencies and find compatible versions, use <code>poetry lock</code></li>
+<li><em>Please commit any changes to your <code>pyproject.toml</code> and <code>poetry.lock</code> files and include them in your submission</em> so that we can replicate your environment.</li>
+</ol>
+<p>In the terminal (of the running docker image), start off by installing the dependencies:</p>
+<pre class="shell"><code>poetry install --with dev</code></pre>
+<blockquote>
+<p><strong>Warning</strong> If you’re a Mac M1/M2 (arm-based) user, note that as of June 2023, DuckDB doesn’t release pre-built <code>aarch64</code> linux wheels for the Python <code>duckdb</code> library (yet). This means that the dependency installation in the running container can take some time (10mins?) as it compiles <code>duckdb</code> from source. If you don’t feel like waiting, you can build an <code>amd64</code> Docker container with by adding the <code>--platform amd64</code> flag to both the <code>docker build</code> and <code>docker run</code> commands above (i.e. you’ll have to re-run those). This image will run seamlessly on your Mac in emulation mode.</p>
+</blockquote>
+<p>Now type</p>
+<pre class="shell"><code>poetry run exercise --help</code></pre>
+<p>to see the options in CLI utility we provide to help you run the exercise. For example, you could do</p>
+<pre class="shell"><code>poetry run exercise ingest-data</code></pre>
+<p>to run the ingestion process you will write in <code>ingest.py</code></p>
+<h3 id="bootstrap-solution">Bootstrap solution</h3>
+<p>This repository contains a bootstrap solution that you can use to build upon.</p>
+<p>You can make any changes you like, as long as the solution can still be executed using the <code>exercise.py</code> script.</p>
+<p>The base solution uses <a href="https://duckdb.org/">DuckDB</a> as the database, and for your solution we want you to treat it like a real (OLAP) data warehouse. The database should be saved in the root folder of the project on the local disk as <code>warehouse.db</code>, as shown in the <code>tests/db_test.py</code> file.</p>
+<p>We also provide the structure for: * <code>equalexperts_dataeng_exercise/ingest.py</code> - the entry point for running the ingestion process. * <code>equalexperts_dataeng_exercise/outliers.py</code> - the entry point for running the outlier detection query. * <code>equalexperts_dataeng_exercise/db.py</code> - is empty, but the associated test demonstrates interaction with an DuckDB database.</p>
+<h3 id="tips-on-what-were-looking-for">Tips on what we’re looking for</h3>
+<ol type="1">
+<li><p><strong>Test coverage</strong></p>
+<p>Your solution must have good test coverage, including common execution paths.</p></li>
+<li><p><strong>Self-contained tests</strong></p>
+<p>Your tests should be self-contained, with no dependency on being run in a specific order.</p></li>
+<li><p><strong>Simplicity</strong></p>
+<p>We value simplicity as an architectural virtue and a development practice. Solutions should reflect the difficulty of the assigned task, and shouldn’t be overly complex. We prefer simple, well tested solutions over clever solutions.</p>
+<p>Please avoid:</p>
+<ul>
+<li>unnecessary layers of abstraction</li>
+<li>patterns</li>
+<li>custom test frameworks</li>
+<li>architectural features that aren’t called for</li>
+<li>libraries like <code>pandas</code> or <code>polars</code> or frameworks like <code>PySpark</code> or <code>ballista</code> - we know that this exercise can be solved fairly trivially using these libraries and a Dataframe approach, and we’d encourage appropriate use of these in daily work contexts. But for this small exercise we really want to know more about how you structure, write and test your Python code, and want you to show some fluency in SQL – a <code>pandas</code> solution won’t allow us to see much of that.</li>
+</ul></li>
+<li><p><strong>Self-explanatory code</strong></p>
+<p>The solution you produce must speak for itself. Multiple paragraphs explaining the solution is a sign that the code isn’t straightforward enough to understand on its own. However, please do explain your non-obvious <em>choices</em> e.g. perhaps why you decided to load data a specific way.</p></li>
+<li><p><strong>Demonstrate fluency with data engineering concepts</strong></p>
+<p>Even though this is a toy exercise, treat DuckDB as you would an OLAP data warehouse. Choose datatypes, data loading methods, optimisations and data models that are suited for resilient analytics processing at scale, not transaction processing.</p></li>
+<li><p><strong>Dealing with ambiguity</strong></p>
+<p>If there’s any ambiguity, please add this in a section at the bottom of the README. You should also make a choice to resolve the ambiguity and proceed.</p></li>
+</ol>
+<p>Our review process starts with a very simplistic test set in the <code>tests/exercise_tests</code> folder which you should also check before submission. You can run these with:</p>
+<pre class="shell"><code>poetry run exercise check-ingestion
+poetry run exercise check-outliers</code></pre>
+<p>Expect these to fail until you have completed the exercise.</p>
+<p>You should not change the <code>tests/exercise-tests</code> folder and your solution should be able to pass both tests.</p>
+<h2 id="download-the-dataset-for-the-exercise">Download the dataset for the exercise</h2>
+<p>Run the command</p>
+<pre><code>poetry run exercise fetch-data</code></pre>
+<p>which will fetch the dataset, uncompress it and place it in <code>uncommitted/votes.jsonl</code> for you. Explore the data to see what values and fields it contains (no need to show how you explored it).</p>
+<h2 id="begin-the-two-part-challenge">Begin the two-part challenge</h2>
+<p>There are two parts to the exercise, and you are expected to complete both. A user should be able to execute each task independently of the other. For example, ingestion shouldn’t cause the outliers query to be executed.</p>
+<h3 id="part-1-ingestion">Part 1: Ingestion</h3>
+<p>Create a schema called <code>blog_analysis</code>. Create an ingestion process that can be run on demand to ingest files containing vote data. You should ensure that data scientists, who will be consumers of the data, do not need to consider duplicate records in their queries. The data should be stored in a table called <code>votes</code> in the <code>blog_analysis</code> schema.</p>
+<h3 id="part-2-outliers-calculation">Part 2: Outliers calculation</h3>
+<p>Create a view named <code>outlier_weeks</code> in the <code>blog_analysis</code> schema. It will contain the output of a SQL calculation for which weeks are regarded as outliers based on the vote data that was ingested. The view should contain the year, week number and the number of votes for the week <em>for only those weeks which are determined to be outliers</em>, according to the following rule:</p>
+<p>NB! If you’re viewing this Markdown document in a viewer where the math isn’t rendering, try viewing this README in GitHub on your web browser, or <a href="docs/calculating_outliers.pdf">see this pdf</a>.</p>
+<blockquote>
+<p><strong>A week is classified as an outlier when the total votes for the week deviate from the average votes per week for the complete dataset by more than 20%.</strong></br><br />
+For the avoidance of doubt, <em>please use the following formula</em>:</p>
+<blockquote>
+<p>Say the mean votes is given by <span class="math inline"><em>x̄</em></span> and this specific week’s votes is given by <span class="math inline"><em>x</em><sub><em>i</em></sub></span>. We want to know when <span class="math inline"><em>x</em><sub><em>i</em></sub></span> differs from <span class="math inline"><em>x̄</em></span> by more than <span class="math inline">20</span>%. When this is true, then the ratio <span class="math inline">$\frac{x_i}{\bar{x}}$</span> must be further from <span class="math inline">1</span> by more than <span class="math inline">0.2</span>, i.e.: </br></br> <span class="math inline">$\big|1 - \frac{x_i}{\bar{x}}\big| &gt; 0.2$</span></p>
+</blockquote>
+</blockquote>
+<p>The data should be sorted in the view by year and week number, with the earliest week first.</p>
+<p>Running <code>outliers.py</code> should recreate the view and just print the contents of this <code>outlier_weeks</code> view to the terminal - don’t do any more calculations after creating the view.</p>
+<h2 id="example">Example</h2>
+<p>The sample dataset below is included in the test-resources folder and can be used when creating your tests.</p>
+<p>Assuming a file is ingested containing the following entries:</p>
+<pre><code>{&quot;Id&quot;:&quot;1&quot;,&quot;PostId&quot;:&quot;1&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-02T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;2&quot;,&quot;PostId&quot;:&quot;1&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-09T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;4&quot;,&quot;PostId&quot;:&quot;1&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-09T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;5&quot;,&quot;PostId&quot;:&quot;1&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-09T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;6&quot;,&quot;PostId&quot;:&quot;5&quot;,&quot;VoteTypeId&quot;:&quot;3&quot;,&quot;CreationDate&quot;:&quot;2022-01-16T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;7&quot;,&quot;PostId&quot;:&quot;3&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-16T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;8&quot;,&quot;PostId&quot;:&quot;4&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-16T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;9&quot;,&quot;PostId&quot;:&quot;2&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-23T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;10&quot;,&quot;PostId&quot;:&quot;2&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-23T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;11&quot;,&quot;PostId&quot;:&quot;1&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-30T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;12&quot;,&quot;PostId&quot;:&quot;5&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-01-30T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;13&quot;,&quot;PostId&quot;:&quot;8&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-02-06T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;14&quot;,&quot;PostId&quot;:&quot;13&quot;,&quot;VoteTypeId&quot;:&quot;3&quot;,&quot;CreationDate&quot;:&quot;2022-02-13T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;15&quot;,&quot;PostId&quot;:&quot;13&quot;,&quot;VoteTypeId&quot;:&quot;3&quot;,&quot;CreationDate&quot;:&quot;2022-02-20T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;16&quot;,&quot;PostId&quot;:&quot;11&quot;,&quot;VoteTypeId&quot;:&quot;2&quot;,&quot;CreationDate&quot;:&quot;2022-02-20T00:00:00.000&quot;}
+{&quot;Id&quot;:&quot;17&quot;,&quot;PostId&quot;:&quot;3&quot;,&quot;VoteTypeId&quot;:&quot;3&quot;,&quot;CreationDate&quot;:&quot;2022-02-27T00:00:00.000&quot;}</code></pre>
+<p>Then the following should be the content of your <code>outlier_weeks</code> view:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>WeekNumber</th>
+<th>VoteCount</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2022</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>5</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>6</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>8</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note that we strongly encourage you to use this data as a test case to ensure that you have the correct calculation!</strong></p>
+<h2 id="follow-up-questions">Follow-up Questions</h2>
+<p>Please include instructions about your strategy and important decisions you made in the README file. You should also include answers to the following questions:</p>
+<ol type="1">
+<li>What kind of data quality measures would you apply to your solution in production?</li>
+<li>What would need to change for the solution scale to work with a 10TB dataset with 5GB new data arriving each day?</li>
+<li>Please tell us in your modified README about any assumptions you have made in your solution (below).</li>
+</ol>
+<h2 id="your-approach-and-answers-to-follow-up-questions">Your Approach and answers to follow-up questions</h2>
+<p><em>Please provide an explaination to your implementation approach and the additional questions <strong>here</strong></em></p>
+<p>Ingestion process is started based on the fact that there is no data in the table (votes) of database (warehouse.db). The table is filled up with data from ‘uncommitted/votes.jsonl’. In “db.py” we have “createDatabase()” method that we invoke as a subprocess in python and run the command from the terminal to create database “warehouse.db” provided the database is not created before.</p>
+<p>Then we filled up the table (blog_analysis.votes). Thus, Ingestion Process consists of three actions:</p>
+<ol type="1">
+<li>To Download the data file (votes.jsonl)</li>
+<li>To create the database (warehouse.db)</li>
+<li>To create Schema (blog_analysis)</li>
+<li>To create Table (votes) under the schema.</li>
+</ol>
+<p>The four steps above are considered as a single <strong>unit</strong> and executed sequentially provided the file ‘warehouse.db’ is not there. Also the fact that once data is ingested into the table as mentioned above, the database size remains unchanged if another attemp is tried to ingest data. Thus, the database shows <strong>idempotent</strong> behaviour with respect to data ingestion.</p>
+<p>The outliers of the data are detected and put them into a dataframe and then the dataframe is displayed. The outliers are detected using SQL queries: one query, one subquery and one subsubquery in a single line.</p>
+<p>Results:</p>
+<p>The following two commands are run sucessfully: * poetry run exercise check-ingestion<br />
+* poetry run exercise check-outliers</p>
+<p>When we run “poetry run exercise test”, we got the following results:</p>
+<table style="width:89%;">
+<colgroup>
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>equalexperts_dataeng_exercise/db.py 9 0 100% equalexperts_dataeng_exercise/ingest.py 57 4 93% equalexperts_dataeng_exercise/outliers.py 11 0 100%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TOTAL 77 4 95%</td>
+</tr>
+<tr class="even">
+<td>When we run "python -m pytest –cov=test it shows the following output.</td>
+</tr>
+<tr class="odd">
+<td>================================================= test session starts ================================================= platform linux – Python 3.11.8, pytest-7.4.4, pluggy-1.4.0 rootdir: /home/user/equal_experts123 plugins: anyio-4.3.0, cov-4.1.0 collected 11 items</td>
+</tr>
+<tr class="even">
+<td>———- coverage: platform linux, python 3.11.8-final-0 ———– Name Stmts Miss Cover</td>
+</tr>
+</tbody>
+</table>
+<p>tests/db_test.py 4 0 100% tests/exercise_tests/test_ingestion.py 43 0 100% tests/exercise_tests/test_outliers.py 21 0 100% tests/ingest_test.py 56 0 100% tests/outliers_test.py 37 2 95% ———————————————————— TOTAL 161 2 99%</p>
+</body>
+</html>

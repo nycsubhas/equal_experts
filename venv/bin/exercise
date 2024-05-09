@@ -1,0 +1,6 @@
+#!/home/user/equal_experts123/venv/bin/python
+import sys
+from equalexperts_dataeng_exercise.scripts.exercise import main
+
+if __name__ == '__main__':
+    sys.exit(main())
