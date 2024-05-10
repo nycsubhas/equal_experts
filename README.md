@@ -269,58 +269,43 @@ Please include instructions about your strategy and important decisions you made
 
 _Please provide an explaination to your implementation approach and the additional questions **here**_
 
-Ingestion process is started based on the fact that there is no data in the table (votes) of database (warehouse.db). The table is filled up with data from 'uncommitted/votes.jsonl'.
-In "db.py" we have "createDatabase()" method that we invoke as a subprocess in python and run the command from the terminal to create database "warehouse.db" provided the database is not created before.
-
-Then we filled up the table (blog_analysis.votes). Thus, Ingestion Process consists of three actions:
-
-1. To Download the data file (votes.jsonl)
-2. To create the database (warehouse.db)
-3. To create Schema (blog_analysis)
-4. To create Table (votes) under the schema.
-
-The four steps above are considered as a single **unit** and executed sequentially provided the file 
-'warehouse.db' is not there. Also the fact that once data is ingested into the table as mentioned 
-above, the database size remains unchanged if another attemp is tried to ingest data. Thus, the database shows **idempotent** behaviour with respect to data ingestion.
-
-The outliers of the data are detected and put them into a dataframe and then the dataframe is displayed. The outliers are detected using SQL queries: one query, one subquery and one subsubquery in a single line.
-
+Ingestion process is started based on the fact that there is no data in the table (votes) of database  sudo apt autoremove.
 Results:
 
-The following two commands are run sucessfully:
-* poetry run exercise check-ingestion   
-* poetry run exercise check-outliers  
+The following two commands are run sucessfully:    
+- poetry run exercise check-ingestion   
+- poetry run exercise check-outliers  
 
-When we run "poetry run exercise test", we got the following results:
+**When we run "poetry run exercise test", we got the following results:**  
 
----------------------------------------------------------------
-equalexperts_dataeng_exercise/db.py             9      0   100%
-equalexperts_dataeng_exercise/ingest.py        57      4    93%
-equalexperts_dataeng_exercise/outliers.py      11      0   100%
----------------------------------------------------------------
-TOTAL                                          77      4    95%
+|           Files                             |   stmts  | Missing| Percent|
+|   ----------------------------------------- | ---------|------  |----    |  
+|   equalexperts_dataeng_exercise/db.py       |      9   |   0    | 100%   | 
+|   equalexperts_dataeng_exercise/ingest.py   |     57   |   4    |  93%   | 
+|   equalexperts_dataeng_exercise/outliers.py |     11   |   0    | 100%   | 
+|TOTAL                                        |      77  |   4    |  95%   |   
 
 
-When we run "python -m pytest --cov=test  it shows the following output.
+**When we run "python -m pytest --cov=test  it shows the following output.**       
 
-================================================= test session starts =================================================
-platform linux -- Python 3.11.8, pytest-7.4.4, pluggy-1.4.0
-rootdir: /home/user/equal_experts123
-plugins: anyio-4.3.0, cov-4.1.0
-collected 11 items                                                                                                    
+================================================= test session starts           ================================================= </br>         
+platform linux -- Python 3.11.8, pytest-7.4.4, pluggy-1.4.0         
+rootdir: /home/user/equal_experts123          
+plugins: anyio-4.3.0, cov-4.1.0           
+collected 11         items                                                                                                                 
 
                                                                      
 
----------- coverage: platform linux, python 3.11.8-final-0 -----------
-Name                                     Stmts   Miss  Cover
-------------------------------------------------------------
-tests/db_test.py                             4      0   100%
-tests/exercise_tests/test_ingestion.py      43      0   100%
-tests/exercise_tests/test_outliers.py       21      0   100%
-tests/ingest_test.py                        56      0   100%
-tests/outliers_test.py                      37      2    95%
-------------------------------------------------------------
-TOTAL                                      161      2    99%
+---------- coverage: platform linux, python 3.11.8-final-0 -----------</br>
+
+|Name                                     |Stmts   |Miss  |Cover|
+|-----------------------------------------|--------|------|-----|
+|tests/db_test.py                          |   4    |  0   |100% |
+|tests/exercise_tests/test_ingestion.py    |  43    |  0   |100% |
+|tests/exercise_tests/test_outliers.py     |  21    |  0   |100% |
+|tests/ingest_test.py                      |  56    |  0   |100% |
+|tests/outliers_test.py                    |  37    |  2   | 95% |
+|TOTAL                                    |  161   |   2  | 99% |
 
 
 
